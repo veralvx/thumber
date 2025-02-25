@@ -9,7 +9,7 @@ thumber = "thumber.main:main"
 
 [project]
 name = "thumber"
-version = "0.2.0"
+version = "0.3.0"
 #dynamic = ["version"]
 authors = [
   { name="lvxvvv" },
@@ -43,7 +43,7 @@ dependencies = [
   "pillow>=11.1.0,<12.0"
 ]
 
-keywords = ["thumbnail", "image", "filter", "ratio", "aspect ratio"]
+keywords = ["thumbnail", "image", "filter", "ratio", "aspect ratio", "crop"]
 
 license = { file = "LICEN[CS]E*" }
 
