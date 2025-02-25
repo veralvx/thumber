@@ -11,7 +11,7 @@ pip install thumber
 ## Usage
 
 ```
-thumber <mode> <input_image> <final_width> <final_height> [blur_radius]
+thumber <mode> <input_image> [<final_width> <final_height> | <aspect_ratio>] [blur_radius]
 ```
 
 Examples:
