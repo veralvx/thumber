@@ -11,11 +11,11 @@ pip install thumber
 ## Usage
 
 ```
-thumber direct <input_image> <final_width> <final_height> [--blur <blur_radius>]
+thumber dimensions <input_image> <width> <height> [--blur <blur_radius>]
 
 thumber aspect <input_image> <ratio> [--blur <blur_radius>]
 
-thumber crop <input_image> {--ratio <aspect_ratio> | --width <crop_width> --height <crop_height>}
+thumber crop <input_image> {--ratio <ratio> | --width <width> --height <height>}
 ```
 
 
