@@ -1,5 +1,11 @@
-# Changelog
+## 0.2.0 - 2025-02-25
+### Chore
+- Add requirements
+- Add dependabot
 
-## 0.1.0
+### Docs
+- Update readme
 
-- Initial Relase
+### Feat
+- Aspect ratio option
+

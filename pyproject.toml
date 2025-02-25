@@ -9,7 +9,7 @@ thumber = "thumber.main:main"
 
 [project]
 name = "thumber"
-version = "0.1.0"
+version = "0.2.0"
 #dynamic = ["version"]
 authors = [
   { name="lvxvvv" },
