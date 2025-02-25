@@ -1,0 +1,16 @@
+
+version: 2
+updates:
+
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "12:00"
+    allow:
+      - dependency-name: pillow
+    groups:
+      python-packages:
+        patterns:
+          - "pillow"
