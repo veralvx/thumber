@@ -1,6 +1,6 @@
 # Thumber
 
-Create thumbanails. Specify dimensions or aspect ratio. If the aspect ratio from the inout image is altered, fills the background with the same image, but blurred.
+Create thumbnails. Specify dimensions or aspect ratio. If the aspect ratio from the inout image is altered, fills the background with the same image, but blurred.
 
 Install using pip:
 
