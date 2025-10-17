@@ -7,6 +7,9 @@ from PIL import Image, ImageFilter
 def thumbnail(input_path, final_width, final_height, blur_radius=10):
     img = Image.open(input_path)
 
+    if img.mode == "P" and isinstance(img.info.get("transparency"), bytes):
+        img = img.convert("RGBA")
+
     orig_w, orig_h = img.size
     scale = max(final_width / orig_w, final_height / orig_h)
     bg_width = int(orig_w * scale)
@@ -17,15 +20,23 @@ def thumbnail(input_path, final_width, final_height, blur_radius=10):
     crop_y = (bg_height - final_height) // 2
     bg = bg.crop((crop_x, crop_y, crop_x + final_width, crop_y + final_height))
 
+    bg = bg.convert("RGB")
+
     bg = bg.filter(ImageFilter.GaussianBlur(radius=blur_radius))
 
     fg = img.copy()
     fg.thumbnail((final_width, final_height), Image.LANCZOS)
 
+    if fg.mode == "P":
+        if "transparency" in fg.info:
+            fg = fg.convert("RGBA")
+        else:
+            fg = fg.convert("RGB")
+
     final_img = bg.copy()
     paste_x = (final_width - fg.width) // 2
     paste_y = (final_height - fg.height) // 2
-    final_img.paste(fg, (paste_x, paste_y))
+    final_img.paste(fg, (paste_x, paste_y), fg if fg.mode in ("RGBA", "LA") else None)
 
     base, ext = os.path.splitext(input_path)
     output_path = f"{base}-thumbnail{ext}"
@@ -39,10 +50,8 @@ def thumbnail(input_path, final_width, final_height, blur_radius=10):
 def adapt_aspect_ratio(input_path: str, target_aspect: float, blur_radius: float = 10):
     cover_path = input_path
 
-    # Deduce extension without dot.
     cov_ext = os.path.splitext(cover_path)[1][1:]
 
-    # Retrieve image dimensions.
     with Image.open(cover_path) as img:
         width, height = img.size
 
@@ -50,8 +59,6 @@ def adapt_aspect_ratio(input_path: str, target_aspect: float, blur_radius: float
 
     current_ratio = width / height
 
-    # Round current ratio if target is non-square.
-    # ratio = current_ratio if target_aspect == 1 else round(current_ratio, 4)
     ratio = current_ratio
     is_ratio_right = ratio == target_aspect
 
@@ -59,15 +66,12 @@ def adapt_aspect_ratio(input_path: str, target_aspect: float, blur_radius: float
     print(f"Correct aspect ratio: {is_ratio_right}")
 
     if not is_ratio_right:
-        # Adjust dimensions.
         if target_aspect == 1:
-            # For squares: set the larger dimension equal to the smaller one.
             if current_ratio > 1:
                 width = height
             else:
                 height = width
         else:
-            # Always adjust based on the smallest
             if current_ratio < 1:
                 height = width
 
@@ -77,7 +81,6 @@ def adapt_aspect_ratio(input_path: str, target_aspect: float, blur_radius: float
         resize_height = int(height)
         print(f"Resizing to: {resize_width} x {resize_height}")
 
-        # Resize and apply blur
         thumbnail(cover_path, resize_width, resize_height, blur_radius)
 
     else:
