@@ -1,18 +1,17 @@
-import sys
-import os
 import argparse
-from PIL import Image, ImageFilter, ImageEnhance
+import os
+
+from PIL import Image, ImageFilter
 
 
 def thumbnail(input_path, final_width, final_height, blur_radius=10):
-
     img = Image.open(input_path)
-    
+
     orig_w, orig_h = img.size
     scale = max(final_width / orig_w, final_height / orig_h)
     bg_width = int(orig_w * scale)
     bg_height = int(orig_h * scale)
-    
+
     bg = img.resize((bg_width, bg_height), Image.LANCZOS)
     crop_x = (bg_width - final_width) // 2
     crop_y = (bg_height - final_height) // 2
@@ -27,18 +26,17 @@ def thumbnail(input_path, final_width, final_height, blur_radius=10):
     paste_x = (final_width - fg.width) // 2
     paste_y = (final_height - fg.height) // 2
     final_img.paste(fg, (paste_x, paste_y))
-    
+
     base, ext = os.path.splitext(input_path)
     output_path = f"{base}-thumbnail{ext}"
 
     final_img.save(output_path)
     print(f"Image saved as {output_path}")
-    
+
     return final_img
 
 
 def adapt_aspect_ratio(input_path: str, target_aspect: float, blur_radius: float = 10):
-
     cover_path = input_path
 
     # Deduce extension without dot.
@@ -53,9 +51,9 @@ def adapt_aspect_ratio(input_path: str, target_aspect: float, blur_radius: float
     current_ratio = width / height
 
     # Round current ratio if target is non-square.
-    #ratio = current_ratio if target_aspect == 1 else round(current_ratio, 4)
+    # ratio = current_ratio if target_aspect == 1 else round(current_ratio, 4)
     ratio = current_ratio
-    is_ratio_right = (ratio == target_aspect)
+    is_ratio_right = ratio == target_aspect
 
     print(f"Current Ratio: {ratio} (Target: {target_aspect})")
     print(f"Correct aspect ratio: {is_ratio_right}")
@@ -75,7 +73,6 @@ def adapt_aspect_ratio(input_path: str, target_aspect: float, blur_radius: float
 
             width = height * target_aspect
 
-
         resize_width = int(width)
         resize_height = int(height)
         print(f"Resizing to: {resize_width} x {resize_height}")
@@ -88,7 +85,6 @@ def adapt_aspect_ratio(input_path: str, target_aspect: float, blur_radius: float
 
 
 def crop_image(input_path, crop_width=None, crop_height=None, target_ratio=None):
-
     img = Image.open(input_path)
     orig_width, orig_height = img.size
 
@@ -122,9 +118,10 @@ def crop_image(input_path, crop_width=None, crop_height=None, target_ratio=None)
         cropped_img = img_resized.crop((left, top, right, bottom))
 
     else:
-
-        print("Error: Must provide either target_ratio or both crop_width and crop_height.")
-        return
+        print(
+            "Error: Must provide either target_ratio or both crop_width and crop_height."
+        )
+        return None
 
     base, ext = os.path.splitext(input_path)
     output_path = f"{base}-thumbnail{ext}"
@@ -134,31 +131,51 @@ def crop_image(input_path, crop_width=None, crop_height=None, target_ratio=None)
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         description="Thumber: Choose dimensions or adapt to a target aspect ratio. Either crop or resize with blur."
     )
-    subparsers = parser.add_subparsers(dest="mode", required=True, help="Mode of operation")
+    subparsers = parser.add_subparsers(
+        dest="mode", required=True, help="Mode of operation"
+    )
 
-    dimensions_parser = subparsers.add_parser("dimensions", help="Resize an image to dimensions")
+    dimensions_parser = subparsers.add_parser(
+        "dimensions", help="Resize an image to dimensions"
+    )
     dimensions_parser.add_argument("input_path", help="Input image file path")
     dimensions_parser.add_argument("width", type=int, help="Final width in pixels")
     dimensions_parser.add_argument("height", type=int, help="Final height in pixels")
-    dimensions_parser.add_argument("--blur", type=float, default=10, help="Gaussian blur radius (default: 10)")
+    dimensions_parser.add_argument(
+        "--blur", type=float, default=10, help="Gaussian blur radius (default: 10)"
+    )
 
-    aspect_parser = subparsers.add_parser("aspect", help="Adapt a cover image to a target aspect ratio with blur effect")
+    aspect_parser = subparsers.add_parser(
+        "aspect", help="Adapt a cover image to a target aspect ratio with blur effect"
+    )
     aspect_parser.add_argument("input_path", help="Input image file path")
-    aspect_parser.add_argument("target_aspect", type=float, help="Target aspect ratio (e.g., 1 or 1.78)")
-    aspect_parser.add_argument("--blur", type=float, default=10, help="Gaussian blur radius (default: 10)")
-
+    aspect_parser.add_argument(
+        "target_aspect", type=float, help="Target aspect ratio (e.g., 1 or 1.78)"
+    )
+    aspect_parser.add_argument(
+        "--blur", type=float, default=10, help="Gaussian blur radius (default: 10)"
+    )
 
     # Crop (simple cropping without blur).
-    crop_parser = subparsers.add_parser("crop", help="Crop an image to specified dimensions or aspect ratio")
+    crop_parser = subparsers.add_parser(
+        "crop", help="Crop an image to specified dimensions or aspect ratio"
+    )
     crop_parser.add_argument("input_path", help="Input image file path")
-    crop_parser.add_argument("--width", type=int, help="Crop width in pixels (if cropping by dimensions)")
-    crop_parser.add_argument("--height", type=int, help="Crop height in pixels (if cropping by dimensions)")
-    crop_parser.add_argument("--ratio", type=float, help="Target aspect ratio for cropping (width/height). "
-                                                          "If provided, takes precedence over width/height.")
+    crop_parser.add_argument(
+        "--width", type=int, help="Crop width in pixels (if cropping by dimensions)"
+    )
+    crop_parser.add_argument(
+        "--height", type=int, help="Crop height in pixels (if cropping by dimensions)"
+    )
+    crop_parser.add_argument(
+        "--ratio",
+        type=float,
+        help="Target aspect ratio for cropping (width/height). "
+        "If provided, takes precedence over width/height.",
+    )
 
     args = parser.parse_args()
 
@@ -176,7 +193,7 @@ def main():
             target_aspect=args.target_aspect,
             blur_radius=args.blur,
         )
-    
+
     elif args.mode == "crop":
         crop_image(
             input_path=args.input_path,
@@ -186,5 +203,5 @@ def main():
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
